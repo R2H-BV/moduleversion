@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf8"?>
+<updates>
+	<update>
+		<name>Module version system plugin</name>
+		<description>Joomla! CMS Module version system plugin</description>
+		<version>2.0.2</version>
+		<infourl title="Module version system plugin">https://github.com/R2H-BV/moduleversion</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip">https://github.com/R2H-BV/moduleversion/releases/download/v.2.0.2/plg_system_moduleversion_2.0.2.zip</downloadurl>
+		</downloads>
+		<targetplatform name="joomla" version="4.[0123456789]"/>
+		<php_minimum>7.4</php_minimum>
+		<element>moduleversion</element>
+		<folder>system</folder>
+		<type>plugin</type>
+		<client>site</client>
+		<tags>
+			<tag>stable</tag>
+		</tags>
+		<maintainer>R2H BV</maintainer>
+        <maintainerurl>https://r2h.nl/</maintainerurl>
+	</update>
+</updates>
