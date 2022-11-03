@@ -6,7 +6,7 @@
 		<version>2.0.2</version>
 		<infourl title="Module version system plugin">https://github.com/R2H-BV/moduleversion</infourl>
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/R2H-BV/moduleversion/releases/download/v.2.0.2/plg_system_moduleversion_2.0.2.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/R2H-BV/moduleversion/releases/download/v2.0.2/plg_system_moduleversion_2.0.2.zip</downloadurl>
 		</downloads>
 		<targetplatform name="joomla" version="4.[0123456789]"/>
 		<php_minimum>7.4</php_minimum>
