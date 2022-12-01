@@ -10,6 +10,7 @@
 
 namespace Joomla\Plugin\System\Moduleversion;
 
+use DateTime;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 
@@ -96,6 +97,7 @@ abstract class Helper
             [
                 'mod_id' => $item->id,
                 'current' => true,
+                'changedate' => (new DateTime)->format('Y-m-d H:i:s'),
             ]
         );
 

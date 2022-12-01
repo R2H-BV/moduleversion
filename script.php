@@ -62,7 +62,7 @@ class plgSystemModuleversionInstallerScript
             `params` text COLLATE utf8mb4_unicode_ci NOT NULL,
             `client_id` tinyint(4) NOT NULL DEFAULT '0',
             `language` char(7) COLLATE utf8mb4_unicode_ci NOT NULL,
-            `changedate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `changedate` datetime NOT NULL,
             PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
         $db->setQuery($query)->execute();
