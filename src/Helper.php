@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 /**
  * @package     Joomla.Plugin
@@ -12,7 +13,9 @@ namespace Joomla\Plugin\System\Moduleversion;
 
 use DateTime;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Table\Module;
 use Joomla\CMS\Uri\Uri;
+use stdClass;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -28,10 +31,10 @@ abstract class Helper
     /**
      * Datbase helper to get the current module versions.
      *
-     * @param   int $moduleId module ID
-     * @return array
+     * @param  integer $moduleId Module ID.
+     * @return array<\stdClass>
      */
-    public static function getVersions($moduleId): array
+    public static function getVersions(int $moduleId): array
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db
@@ -42,7 +45,7 @@ abstract class Helper
 
         $query->select(
             $db->quoteName(
-                array(
+                [
                     'id',
                     'current',
                     'mod_id',
@@ -60,8 +63,8 @@ abstract class Helper
                     'params',
                     'client_id',
                     'language',
-                    'changedate'
-                )
+                    'changedate',
+                ]
             )
         );
 
@@ -80,10 +83,9 @@ abstract class Helper
     /**
      * Datbase helper to store the current module versions.
      *
-     * @param   object $item Current module item
-     * @return  void
+     * @param  Module $item Current module item.
      */
-    public static function storeVersion($item)
+    public static function storeVersion(Module $item): void
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db
@@ -110,11 +112,11 @@ abstract class Helper
             $fields
         );
 
-        if ($values['publish_up'] == "''") {
+        if ($values['publish_up'] === "''") {
             $values['publish_up'] = 'NULL';
         }
 
-        if ($values['publish_down'] == "''") {
+        if ($values['publish_down'] === "''") {
             $values['publish_down'] = 'NULL';
         }
 
@@ -131,10 +133,9 @@ abstract class Helper
     /**
      * Datbase helper to reset the star icon.
      *
-     * @param   int $modId  The module ID.
-     * @return  void
+     * @param  integer $modId The module ID.
      */
-    public static function resetCurrent(int $modId)
+    public static function resetCurrent(int $modId): void
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db
@@ -143,9 +144,9 @@ abstract class Helper
 
         $query = $db->getQuery(true);
 
-        $fields = array(
-            $db->quoteName('current') . ' = ' . 0
-        );
+        $fields = [
+            $db->quoteName('current') . ' = ' . 0,
+        ];
 
         $conditions = [
             $db->quoteName('current') . ' = ' . 1,
@@ -165,11 +166,10 @@ abstract class Helper
     /**
      * Datbase helper to set the star icon.
      *
-     * @param   int $id    Current module item.
-     * @param   int $modId The module ID.
-     * @return  void
+     * @param  integer $id    Current module item.
+     * @param  integer $modId The module ID.
      */
-    public static function setCurrent($id, $modId)
+    public static function setCurrent(int $id, int $modId): void
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db
@@ -178,14 +178,14 @@ abstract class Helper
 
         $query = $db->getQuery(true);
 
-        $fields = array(
+        $fields = [
             $db->quoteName('current') . ' = CASE WHEN ' .
-                $db->quoteName('id') . ' = ' . $db->quote($id) . ' THEN ' . 1 . ' ELSE ' . 0 . ' END'
-        );
+                $db->quoteName('id') . ' = ' . $db->quote($id) . ' THEN 1 ELSE 0 END',
+        ];
 
-        $conditions = array(
-            $db->quoteName('mod_id') . ' = ' . $modId
-        );
+        $conditions = [
+            $db->quoteName('mod_id') . ' = ' . $modId,
+        ];
 
         $query
             ->update($db->quoteName('#__modules_versions'))
@@ -200,8 +200,7 @@ abstract class Helper
     /**
      * Database helper to update the module with the selected module versions.
      *
-     * @param   \stdClass $item Current module item.
-     * @return  void
+     * @param  \stdClass $item Current module item.
      */
     public static function updateModuleToVersion(\stdClass $item): void
     {
@@ -214,11 +213,9 @@ abstract class Helper
 
         $fields = array_map(
             function (string $key, $value) use ($db) {
-
-                if ($key == 'publish_up' || $key == 'publish_down') {
-                    if (!$value || $value == '0000-00-00 00:00:00' || $value == "''") {
-                        $value = null;
-                    }
+                if (($key === 'publish_up' || $key === 'publish_down')
+                    && (!$value || $value === '0000-00-00 00:00:00' || $value === "''")) {
+                    $value = null;
                 }
 
                 return $db->quoteName($key) . ' = ' . ($value === null ? 'NULL' : $db->quote($value));
@@ -241,10 +238,9 @@ abstract class Helper
     /**
      * Datbase helper to delete versions of trashed modules.
      *
-     * @param   int   $item Current module item
-     * @return  void
+     * @param  integer $item Current module item.
      */
-    public static function deleteVersion($item)
+    public static function deleteVersion(int $item): void
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db
@@ -269,10 +265,9 @@ abstract class Helper
     /**
      * Datbase helper to delete versions of uninstalled modules.
      *
-     * @param   string   $eid Current extension ID
-     * @return  void
+     * @param   string $eid Current extension ID.
      */
-    public static function uninstallVersion($eid)
+    public static function uninstallVersion(string $eid): void
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db
@@ -309,15 +304,13 @@ abstract class Helper
     }
 
     /**
-     * Datbase helper to compare the current module settings and the latest version in DB
-     * @param   \stdClass $moduleSettings The current module item.
+     * Datbase helper to compare the current module settings and the latest version in DB.
+     *
+     * @param   Module    $moduleSettings The current module item.
      * @param   \stdClass $loadedVersion  The version loaded from the database.
-     * @return  boolean
      */
-    public static function compareVersion($moduleSettings, $loadedVersion)
+    public static function compareVersion(Module $moduleSettings, stdClass $loadedVersion): bool
     {
-        $settingsChanged = false;
-
         $source = self::filterContent((array) $moduleSettings);
         $target = self::filterContent((array) $loadedVersion);
 
@@ -327,9 +320,9 @@ abstract class Helper
     /**
      * Filters the module content for the values.
      *
-     * @param   array $content  The module content.
-     * @param   array $excluded The excluded key from the filter.
-     * @return  array<string, mixed>
+     * @param  array<string, string> $content  The module content.
+     * @param  array<string>         $excluded The excluded key from the filter.
+     * @return array<string, mixed>
      */
     protected static function filterContent(array $content, array $excluded = []): array
     {
@@ -363,11 +356,11 @@ abstract class Helper
     }
 
     /**
-     * Create the html params table from the object
-     * @param   object   $values    Object with module parameters
-     * @return string
+     * Create the html params table from the object.
+     *
+     * @param mixed $values Object with module parameters.
      */
-    public static function formatOutput($values): string
+    public static function formatOutput($values): string //phpcs:ignore
     {
         if (is_object($values)) {
             $values = get_object_vars($values);
@@ -381,7 +374,7 @@ abstract class Helper
 
                 $output .= '<dt>' . $key . '</dt><dd>' . self::formatOutput($val) . '</dd>';
             } else {
-                $val = str_replace('src="images', 'src="' . URI::root(true) . '/images', $val);
+                $val = str_replace('src="images', 'src="' . URI::root(true) . '/images', (string) $val);
 
                 $output .= '<dt class="d-flex justify-content-between"><span>' . $key;
                 $output .= '</span><span class="ms-1">:</span></dt><dd>' . $val . '</dd>';
@@ -396,10 +389,9 @@ abstract class Helper
     /**
      * Datbase helper to remove obsolete versions.
      *
-     * @param   int $id Current module item
-     * @return  void
+     * @param   integer $id Current module item.
      */
-    public static function removeObsolete($id)
+    public static function removeObsolete(int $id): void
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db

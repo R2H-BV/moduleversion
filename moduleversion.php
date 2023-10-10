@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 /**
  * @package     Joomla.Plugin
@@ -32,7 +33,6 @@ class PlgSystemModuleversion extends CMSPlugin
      * Application object.
      *
      * @var    CMSApplicationInterface
-     * @since  4.1.0
      */
     protected $app;
 
@@ -40,7 +40,6 @@ class PlgSystemModuleversion extends CMSPlugin
      * Affects constructor behavior. If true, language files will be loaded automatically.
      *
      * @var    boolean
-     * @since  4.1.0
      */
     protected $autoloadLanguage = true;
 
@@ -60,9 +59,6 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Listener for the `onBeforeRender` event.
-     *
-     * @return  void
-     * @since   1.0
      */
     public function onBeforeRender(): void
     {
@@ -102,11 +98,8 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Listener for the `onAfterRender` event.
-     *
-     * @return  void
-     * @since   1.0
      */
-    public function onAfterRender(): void
+    public function onAfterRender(): void //phpcs:ignore
     {
         // Check if client is administrator or we have results.
         if (!$this->app->isClient('administrator') || !self::$results) {
@@ -148,15 +141,16 @@ class PlgSystemModuleversion extends CMSPlugin
             $modulePosition = $result->position ? $result->position : Text::_('JNONE');
             $modulePublished = $result->published ? Text::_('JPUBLISHED') : Text::_('JUNPUBLISHED');
             $moduleShowtitle = $result->showtitle ? Text::_('JSHOW') : Text::_('JHIDE');
-            $moduleLanguage = $result->language == '*' ? Text::_('JALL_LANGUAGE') : $result->language;
-            $moduleUp = $result->publish_up;
-            $moduleDown = $result->publish_down;
+            $moduleLanguage = $result->language === '*' ? Text::_('JALL_LANGUAGE') : $result->language;
 
-            $defaultParams = '<fieldset class="options-form p-3"><legend class="mb-0">' . Text::_('PLG_SYSTEM_MODULEVERSION_GLOBALPARAMS_TITLE') . '</legend>';
+            $defaultParams = '<fieldset class="options-form p-3"><legend class="mb-0">' .
+                Text::_('PLG_SYSTEM_MODULEVERSION_GLOBALPARAMS_TITLE') . '</legend>';
             $defaultParams .= '<div class="overflow-hidden">';
             $defaultParams .= '<dl class="dl-horizontal">';
-            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('COM_MODULES_FIELD_POSITION_LABEL');
-            $defaultParams .= '</span><span class="ms-1">:</span></dt><dd><span class="badge bg-info">' . $modulePosition . '</span></dd>';
+            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' .
+                Text::_('COM_MODULES_FIELD_POSITION_LABEL');
+            $defaultParams .= '</span><span class="ms-1">:</span></dt><dd><span class="badge bg-info">' .
+                $modulePosition . '</span></dd>';
             $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('JSTATUS');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $modulePublished . '</dd>';
             $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('JGLOBAL_TITLE');
@@ -165,9 +159,11 @@ class PlgSystemModuleversion extends CMSPlugin
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $moduleLanguage . '</dd>';
             $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('JGRID_HEADING_ACCESS');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $result->access . '</dd>';
-            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('COM_MODULES_FIELD_PUBLISH_UP_LABEL');
+            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' .
+                Text::_('COM_MODULES_FIELD_PUBLISH_UP_LABEL');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $result->publish_up . '</dd>';
-            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('COM_MODULES_FIELD_PUBLISH_DOWN_LABEL');
+            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' .
+                Text::_('COM_MODULES_FIELD_PUBLISH_DOWN_LABEL');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $result->publish_down . '</dd>';
             $defaultParams .= '</dl>';
             $defaultParams .= '</div></fieldset>';
@@ -175,22 +171,25 @@ class PlgSystemModuleversion extends CMSPlugin
             $modContent = '';
             $showParams = (bool) $this->params->get('showparams', 1);
 
-            if (!empty($result->content)) {
+            if (!strlen($result->content)) {
                 // Rewrite image URL's to show the images
                 $result->content = str_replace('src="images', 'src="' . URI::root(true) . '/images', $result->content);
 
                 // Remove href tags
                 $result->content = preg_replace('#href="(.*?)"#', '', $result->content);
 
-                $modContent = '<fieldset class="options-form p-3"><legend class="mb-0">' . Text::_('PLG_SYSTEM_MODULEVERSION_CONTENT_TITLE') . '</legend>';
+                $modContent = '<fieldset class="options-form p-3"><legend class="mb-0">' .
+                    Text::_('PLG_SYSTEM_MODULEVERSION_CONTENT_TITLE') . '</legend>';
                 $modContent .= '<div class="overflow-hidden ps-3">' . $result->content . '</div></fieldset>';
             }
 
             $modParams = '';
 
-            if (!empty($result->params) && $showParams) {
-                $modParams = '<fieldset class="options-form p-3"><legend class="mb-0">' . Text::_('PLG_SYSTEM_MODULEVERSION_PARAMS_TITLE') . '</legend>';
-                $modParams .= '<div class="overflow-hidden">' . Helper::formatOutput(json_decode($result->params, true)) . '</div></fieldset>';
+            if (!strlen($result->params) && $showParams) {
+                $modParams = '<fieldset class="options-form p-3"><legend class="mb-0">' .
+                    Text::_('PLG_SYSTEM_MODULEVERSION_PARAMS_TITLE') . '</legend>';
+                $modParams .= '<div class="overflow-hidden">' .
+                    Helper::formatOutput(json_decode($result->params, true)) . '</div></fieldset>';
             }
 
             $moduleTitle = $result->title;
@@ -206,7 +205,8 @@ class PlgSystemModuleversion extends CMSPlugin
             <div class="accordion-item">
             <div class="accordion-header d-block d-lg-flex justify-content-between" id="heading$index">
             <div class="form-check d-flex align-items-center mx-3 pb-1">
-            <input class="form-check-input mt-0 me-2" type="radio" name="index" value="$index" id="moduleRadioSelect$index">
+            <input class="form-check-input mt-0 me-2" type="radio" name="index"
+                value="$index" id="moduleRadioSelect$index">
             <label class="d-block d-sm-flex form-check-label" for="moduleRadioSelect$index">
             <span class="d-block pe-3 mod-date-info d-flex align-items-center">$result->changedate</span>
             </label>
@@ -290,8 +290,6 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Triggered before compiling the head.
-     *
-     * @return void
      */
     public function onBeforeCompileHead(): void
     {
@@ -312,14 +310,14 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an extension is saved.
      *
-     * @param   object  $context  The context which is active.
-     * @param   object  $item     An optional associative array of module settings.
-     * @param   bool    $isNew    Check if module is new.
+     * @param  object  $context The context which is active.
+     * @param  object  $item    An optional associative array of module settings.
+     * @param  boolean $isNew   Check if module is new.
      *
      * @since   1.0
      * @return  void
      */
-    public function onExtensionAfterSave($context, $item, $isNew)
+    public function onExtensionAfterSave($context, $item, $isNew) //phpcs:ignore
     {
         // Check if client is Administrator or context is module
         if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
@@ -375,14 +373,11 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an Extension is being deleted.
      *
-     * @param   string  $context  The module.
-     * @param   Table   $table    DataBase Table object.
+     * @param  string $context The module.
+     * @param  Table  $table   DataBase Table object.
      *
-     * @return  void
-     *
-     * @since   3.9.0
      */
-    public function onExtensionAfterDelete($context, $table): void
+    public function onExtensionAfterDelete($context, $table): void //phpcs:ignore
     {
         // Check if client is administrator or view is module.
         if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
@@ -396,13 +391,13 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an Extension is being uninstalled.
      *
-     * @param   integer    $eid        Extension id
+     * @param  integer $eid Extension id.
      *
      * @return  void
      *
      * @since   4.0.0
      */
-    public function onExtensionBeforeUninstall($eid)
+    public function onExtensionBeforeUninstall($eid) //phpcs:ignore
     {
         // Check if client is administrator or view is module.
         if (!$this->app->isClient('administrator')) {
@@ -410,13 +405,11 @@ class PlgSystemModuleversion extends CMSPlugin
         }
 
         // Delete the versions of the uninstalled module.
-        Helper::uninstallVersion($eid);
+        Helper::uninstallVersion((string) $eid);
     }
 
     /**
      * Load the versions of the selected module.
-     *
-     * @return  void
      */
     protected function loadVersionsResults(): void
     {
@@ -424,8 +417,17 @@ class PlgSystemModuleversion extends CMSPlugin
             return;
         }
 
+        $version = $this->app->input->get->getInt('id');
+
+        if (!$version) {
+            self::$numberOfVersions = 0;
+            self::$results = [];
+
+            return;
+        }
+
         // Get the entries of the current module from the DB as result.
-        self::$results = Helper::getVersions($this->app->input->get->getInt('id'));
+        self::$results = Helper::getVersions($version);
 
         // Count the versions.
         self::$numberOfVersions = count(self::$results);
