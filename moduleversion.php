@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 /**
  * @package     Joomla.Plugin
@@ -32,7 +33,6 @@ class PlgSystemModuleversion extends CMSPlugin
      * Application object.
      *
      * @var    CMSApplicationInterface
-     * @since  4.1.0
      */
     protected $app;
 
@@ -40,7 +40,6 @@ class PlgSystemModuleversion extends CMSPlugin
      * Affects constructor behavior. If true, language files will be loaded automatically.
      *
      * @var    boolean
-     * @since  4.1.0
      */
     protected $autoloadLanguage = true;
 
@@ -60,9 +59,6 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Listener for the `onBeforeRender` event.
-     *
-     * @return  void
-     * @since   1.0
      */
     public function onBeforeRender(): void
     {
@@ -102,11 +98,8 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Listener for the `onAfterRender` event.
-     *
-     * @return  void
-     * @since   1.0
      */
-    public function onAfterRender(): void
+    public function onAfterRender(): void //phpcs:ignore
     {
         // Check if client is administrator or we have results.
         if (!$this->app->isClient('administrator') || !self::$results) {
@@ -290,8 +283,6 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Triggered before compiling the head.
-     *
-     * @return void
      */
     public function onBeforeCompileHead(): void
     {
@@ -312,14 +303,14 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an extension is saved.
      *
-     * @param   object  $context  The context which is active.
-     * @param   object  $item     An optional associative array of module settings.
-     * @param   bool    $isNew    Check if module is new.
+     * @param  object  $context The context which is active.
+     * @param  object  $item    An optional associative array of module settings.
+     * @param  boolean $isNew   Check if module is new.
      *
      * @since   1.0
      * @return  void
      */
-    public function onExtensionAfterSave($context, $item, $isNew)
+    public function onExtensionAfterSave($context, $item, $isNew) //phpcs:ignore
     {
         // Check if client is Administrator or context is module
         if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
@@ -375,14 +366,11 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an Extension is being deleted.
      *
-     * @param   string  $context  The module.
-     * @param   Table   $table    DataBase Table object.
+     * @param  string $context The module.
+     * @param  Table  $table   DataBase Table object.
      *
-     * @return  void
-     *
-     * @since   3.9.0
      */
-    public function onExtensionAfterDelete($context, $table): void
+    public function onExtensionAfterDelete($context, $table): void //phpcs:ignore
     {
         // Check if client is administrator or view is module.
         if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
@@ -396,13 +384,13 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an Extension is being uninstalled.
      *
-     * @param   integer    $eid        Extension id
+     * @param  integer $eid Extension id.
      *
      * @return  void
      *
      * @since   4.0.0
      */
-    public function onExtensionBeforeUninstall($eid)
+    public function onExtensionBeforeUninstall($eid) //phpcs:ignore
     {
         // Check if client is administrator or view is module.
         if (!$this->app->isClient('administrator')) {
@@ -415,8 +403,6 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Load the versions of the selected module.
-     *
-     * @return  void
      */
     protected function loadVersionsResults(): void
     {
@@ -424,8 +410,17 @@ class PlgSystemModuleversion extends CMSPlugin
             return;
         }
 
+        $version = $this->app->input->get->getInt('id');
+
+        if (!$version) {
+            self::$numberOfVersions = 0;
+            self::$results = [];
+
+            return;
+        }
+
         // Get the entries of the current module from the DB as result.
-        self::$results = Helper::getVersions($this->app->input->get->getInt('id'));
+        self::$results = Helper::getVersions($version);
 
         // Count the versions.
         self::$numberOfVersions = count(self::$results);
