@@ -13,6 +13,7 @@ namespace Joomla\Plugin\System\Moduleversion;
 
 use DateTime;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Table\Module;
 use Joomla\CMS\Uri\Uri;
 use stdClass;
 
@@ -82,9 +83,9 @@ abstract class Helper
     /**
      * Datbase helper to store the current module versions.
      *
-     * @param   \stdClass $item Current module item.
+     * @param  Module $item Current module item.
      */
-    public static function storeVersion(stdClass $item): void
+    public static function storeVersion(Module $item): void
     {
         /**
          * @var \Joomla\Database\DatabaseDriver $db
@@ -305,10 +306,10 @@ abstract class Helper
     /**
      * Datbase helper to compare the current module settings and the latest version in DB.
      *
-     * @param   \stdClass $moduleSettings The current module item.
+     * @param   Module    $moduleSettings The current module item.
      * @param   \stdClass $loadedVersion  The version loaded from the database.
      */
-    public static function compareVersion(stdClass $moduleSettings, stdClass $loadedVersion): bool
+    public static function compareVersion(Module $moduleSettings, stdClass $loadedVersion): bool
     {
         $source = self::filterContent((array) $moduleSettings);
         $target = self::filterContent((array) $loadedVersion);
@@ -373,7 +374,7 @@ abstract class Helper
 
                 $output .= '<dt>' . $key . '</dt><dd>' . self::formatOutput($val) . '</dd>';
             } else {
-                $val = str_replace('src="images', 'src="' . URI::root(true) . '/images', $val);
+                $val = str_replace('src="images', 'src="' . URI::root(true) . '/images', (string) $val);
 
                 $output .= '<dt class="d-flex justify-content-between"><span>' . $key;
                 $output .= '</span><span class="ms-1">:</span></dt><dd>' . $val . '</dd>';
