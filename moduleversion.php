@@ -172,15 +172,15 @@ class PlgSystemModuleversion extends CMSPlugin
             $showParams = (bool) $this->params->get('showparams', 1);
 
             if (!strlen($result->content)) {
-                // Rewrite image URL's to show the images
-                $result->content = str_replace('src="images', 'src="' . URI::root(true) . '/images', $result->content);
+                // Rewrite image URL's to show the images and store in temp variable to prevent overriden output.
+                $tempContent = str_replace('src="images', 'src="' . URI::root(true) . '/images', $result->content);
 
                 // Remove href tags
-                $result->content = preg_replace('#href="(.*?)"#', '', $result->content);
+                $tempContent = preg_replace('#href="(.*?)"#', '', $tempContent);
 
                 $modContent = '<fieldset class="options-form p-3"><legend class="mb-0">' .
                     Text::_('PLG_SYSTEM_MODULEVERSION_CONTENT_TITLE') . '</legend>';
-                $modContent .= '<div class="overflow-hidden ps-3">' . $result->content . '</div></fieldset>';
+                $modContent .= '<div class="overflow-hidden ps-3">' . $tempContent . '</div></fieldset>';
             }
 
             $modParams = '';
