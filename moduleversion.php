@@ -141,15 +141,16 @@ class PlgSystemModuleversion extends CMSPlugin
             $modulePosition = $result->position ? $result->position : Text::_('JNONE');
             $modulePublished = $result->published ? Text::_('JPUBLISHED') : Text::_('JUNPUBLISHED');
             $moduleShowtitle = $result->showtitle ? Text::_('JSHOW') : Text::_('JHIDE');
-            $moduleLanguage = $result->language == '*' ? Text::_('JALL_LANGUAGE') : $result->language;
-            $moduleUp = $result->publish_up;
-            $moduleDown = $result->publish_down;
+            $moduleLanguage = $result->language === '*' ? Text::_('JALL_LANGUAGE') : $result->language;
 
-            $defaultParams = '<fieldset class="options-form p-3"><legend class="mb-0">' . Text::_('PLG_SYSTEM_MODULEVERSION_GLOBALPARAMS_TITLE') . '</legend>';
+            $defaultParams = '<fieldset class="options-form p-3"><legend class="mb-0">' .
+                Text::_('PLG_SYSTEM_MODULEVERSION_GLOBALPARAMS_TITLE') . '</legend>';
             $defaultParams .= '<div class="overflow-hidden">';
             $defaultParams .= '<dl class="dl-horizontal">';
-            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('COM_MODULES_FIELD_POSITION_LABEL');
-            $defaultParams .= '</span><span class="ms-1">:</span></dt><dd><span class="badge bg-info">' . $modulePosition . '</span></dd>';
+            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' .
+                Text::_('COM_MODULES_FIELD_POSITION_LABEL');
+            $defaultParams .= '</span><span class="ms-1">:</span></dt><dd><span class="badge bg-info">' .
+                $modulePosition . '</span></dd>';
             $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('JSTATUS');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $modulePublished . '</dd>';
             $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('JGLOBAL_TITLE');
@@ -158,9 +159,11 @@ class PlgSystemModuleversion extends CMSPlugin
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $moduleLanguage . '</dd>';
             $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('JGRID_HEADING_ACCESS');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $result->access . '</dd>';
-            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('COM_MODULES_FIELD_PUBLISH_UP_LABEL');
+            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' .
+                Text::_('COM_MODULES_FIELD_PUBLISH_UP_LABEL');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $result->publish_up . '</dd>';
-            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' . Text::_('COM_MODULES_FIELD_PUBLISH_DOWN_LABEL');
+            $defaultParams .= '<dt class="d-flex justify-content-between"><span>' .
+                Text::_('COM_MODULES_FIELD_PUBLISH_DOWN_LABEL');
             $defaultParams .= '</span><span class="ms-1">:</span></dt><dd>' . $result->publish_down . '</dd>';
             $defaultParams .= '</dl>';
             $defaultParams .= '</div></fieldset>';
@@ -168,22 +171,25 @@ class PlgSystemModuleversion extends CMSPlugin
             $modContent = '';
             $showParams = (bool) $this->params->get('showparams', 1);
 
-            if (!empty($result->content)) {
+            if (!strlen($result->content)) {
                 // Rewrite image URL's to show the images
                 $result->content = str_replace('src="images', 'src="' . URI::root(true) . '/images', $result->content);
 
                 // Remove href tags
                 $result->content = preg_replace('#href="(.*?)"#', '', $result->content);
 
-                $modContent = '<fieldset class="options-form p-3"><legend class="mb-0">' . Text::_('PLG_SYSTEM_MODULEVERSION_CONTENT_TITLE') . '</legend>';
+                $modContent = '<fieldset class="options-form p-3"><legend class="mb-0">' .
+                    Text::_('PLG_SYSTEM_MODULEVERSION_CONTENT_TITLE') . '</legend>';
                 $modContent .= '<div class="overflow-hidden ps-3">' . $result->content . '</div></fieldset>';
             }
 
             $modParams = '';
 
-            if (!empty($result->params) && $showParams) {
-                $modParams = '<fieldset class="options-form p-3"><legend class="mb-0">' . Text::_('PLG_SYSTEM_MODULEVERSION_PARAMS_TITLE') . '</legend>';
-                $modParams .= '<div class="overflow-hidden">' . Helper::formatOutput(json_decode($result->params, true)) . '</div></fieldset>';
+            if (!strlen($result->params) && $showParams) {
+                $modParams = '<fieldset class="options-form p-3"><legend class="mb-0">' .
+                    Text::_('PLG_SYSTEM_MODULEVERSION_PARAMS_TITLE') . '</legend>';
+                $modParams .= '<div class="overflow-hidden">' .
+                    Helper::formatOutput(json_decode($result->params, true)) . '</div></fieldset>';
             }
 
             $moduleTitle = $result->title;
@@ -199,7 +205,8 @@ class PlgSystemModuleversion extends CMSPlugin
             <div class="accordion-item">
             <div class="accordion-header d-block d-lg-flex justify-content-between" id="heading$index">
             <div class="form-check d-flex align-items-center mx-3 pb-1">
-            <input class="form-check-input mt-0 me-2" type="radio" name="index" value="$index" id="moduleRadioSelect$index">
+            <input class="form-check-input mt-0 me-2" type="radio" name="index"
+                value="$index" id="moduleRadioSelect$index">
             <label class="d-block d-sm-flex form-check-label" for="moduleRadioSelect$index">
             <span class="d-block pe-3 mod-date-info d-flex align-items-center">$result->changedate</span>
             </label>
@@ -398,7 +405,7 @@ class PlgSystemModuleversion extends CMSPlugin
         }
 
         // Delete the versions of the uninstalled module.
-        Helper::uninstallVersion($eid);
+        Helper::uninstallVersion((string) $eid);
     }
 
     /**
