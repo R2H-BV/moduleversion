@@ -1,10 +1,11 @@
-<?php
+<?php //phpcs:ignore
+declare(strict_types = 1);
+
 // No direct access to this file
 defined('_JEXEC') or die;
 
 /**
  * @package    Joomla.Administrator
- * @subpackage com_foos
  *
  * @copyright Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
  * @license   GNU General Public License version 2 or later; see LICENSE.txt
@@ -14,30 +15,34 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Factory;
+
 /**
  * Script file of Foo module
  */
-class plgSystemModuleversionInstallerScript
+class plgSystemModuleversionInstallerScript // phpcs:ignore
 {
     /**
-     * Extension script constructor.
+     * Minimum Joomla version.
      *
-     * @return  void
+     * @var string
      */
-    public function __construct()
-    {
-        $this->minimumJoomla = '4.0';
-        $this->minimumPhp = JOOMLA_MINIMUM_PHP;
-    }
+    protected $minimumJoomla = '4.0';
+
+    /**
+     * Minimum PHP version.
+     *
+     * @var string
+     */
+    protected $minimumPhp = '7.4.0';
 
     /**
      * Method to install the extension
      *
-     * @param InstallerAdapter $parent The class calling this method
+     * @param  InstallerAdapter $parent The class calling this method.
      *
-     * @return boolean True on success
+     * @return boolean
      */
-    public function install($parent)
+    public function install($parent) // phpcs:ignore
     {
         $db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -73,13 +78,13 @@ class plgSystemModuleversionInstallerScript
     }
 
     /**
-     * Method to uninstall the extension
+     * Method to uninstall the extension.
      *
-     * @param InstallerAdapter $parent The class calling this method
+     * @param InstallerAdapter $parent The class calling this method.
      *
-     * @return boolean  True on success
+     * @return boolean
      */
-    public function uninstall($parent)
+    public function uninstall($parent) //phpcs:ignore
     {
         $db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -93,21 +98,24 @@ class plgSystemModuleversionInstallerScript
     /**
      * Function called before extension installation/update/removal procedure commences
      *
-     * @param string           $type   The type of change (install, update or discover_install, not uninstall)
-     * @param InstallerAdapter $parent The class calling this method
+     * @param string           $type   The type of change (install, update or discover_install, not uninstall).
+     * @param InstallerAdapter $parent The class calling this method.
      *
-     * @return boolean  True on success
+     * @return boolean
      */
-    public function preflight($type, $parent)
+    public function preflight($type, $parent) //phpcs:ignore
     {
-        // Check for the minimum PHP version before continuing
-        if (!empty($this->minimumPhp) && version_compare(PHP_VERSION, $this->minimumPhp, '<')) {
+        // Check for the minimum PHP version before continuing.
+        if (strlen($this->minimumPhp) && version_compare(PHP_VERSION, $this->minimumPhp, '<')) {
             Log::add(Text::sprintf('JLIB_INSTALLER_MINIMUM_PHP', $this->minimumPhp), Log::WARNING, 'jerror');
+
             return false;
         }
-        // Check for the minimum Joomla version before continuing
-        if (!empty($this->minimumJoomla) && version_compare(JVERSION, $this->minimumJoomla, '<')) {
+
+        // Check for the minimum Joomla version before continuing.
+        if (strlen($this->minimumJoomla) && version_compare(JVERSION, $this->minimumJoomla, '<')) {
             Log::add(Text::sprintf('JLIB_INSTALLER_MINIMUM_JOOMLA', $this->minimumJoomla), Log::WARNING, 'jerror');
+
             return false;
         }
 
