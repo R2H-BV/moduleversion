@@ -62,8 +62,10 @@ class PlgSystemModuleversion extends CMSPlugin
      */
     public function onBeforeRender(): void
     {
+        $this->isAdmin = Factory::getApplication()->isClient('administrator');
         // Check if client is administrator or view is module.
-        if (!$this->app->isClient('administrator') || $this->app->input->get->getString('view') !== 'module') {
+        //if (!$this->app->isClient('administrator') || $this->app->input->get->getString('view') !== 'module') {
+        if (!$this->isAdmin || $this->app->input->get->getString('view') !== 'module') {
             return;
         }
 
@@ -101,11 +103,14 @@ class PlgSystemModuleversion extends CMSPlugin
      */
     public function onAfterRender(): void //phpcs:ignore
     {
+        $this->isAdmin = Factory::getApplication()->isClient('administrator');
+                    
         // Check if client is administrator or we have results.
-        if (!$this->app->isClient('administrator') || !self::$results) {
+        //if (!$this->app->isClient('administrator') || !self::$results) {
+          if (!$this->isAdmin || !self::$results) {
             return;
         }
-
+        
         // Get the body text from the Application.
         $content = $this->app->getBody();
 
@@ -137,6 +142,8 @@ class PlgSystemModuleversion extends CMSPlugin
         <div class="accordion" id="accordionModInfo">
         HTML;
 
+        
+        
         foreach (self::$results as $index => $result) {
             $modulePosition = $result->position ? $result->position : Text::_('JNONE');
             $modulePublished = $result->published ? Text::_('JPUBLISHED') : Text::_('JUNPUBLISHED');
@@ -293,8 +300,10 @@ class PlgSystemModuleversion extends CMSPlugin
      */
     public function onBeforeCompileHead(): void
     {
+        $this->isAdmin = Factory::getApplication()->isClient('administrator');
         // Check if client is administrator and view is module.
-        if (!$this->app->isClient('administrator') && $this->app->input->get->getString('view') !== 'module') {
+        //if (!$this->app->isClient('administrator') && $this->app->input->get->getString('view') !== 'module') {
+        if (!$this->isadmin && $this->app->input->get->getString('view') !== 'module') {
             return;
         }
 
@@ -319,8 +328,10 @@ class PlgSystemModuleversion extends CMSPlugin
      */
     public function onExtensionAfterSave($context, $item, $isNew) //phpcs:ignore
     {
+        $this->isAdmin = Factory::getApplication()->isClient('administrator');                      
         // Check if client is Administrator or context is module
-        if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
+        //if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {        
+        if (!$this->isAdmin || ( $context !== 'com_modules.module' && $context !== 'com_advancedmodules.module')) {            
             return;
         }
 
@@ -380,7 +391,9 @@ class PlgSystemModuleversion extends CMSPlugin
     public function onExtensionAfterDelete($context, $table): void //phpcs:ignore
     {
         // Check if client is administrator or view is module.
-        if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
+        $this->isAdmin = Factory::getApplication()->isClient('administrator');           
+        //if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
+        if (!$this->isAdmin || ( $context !== 'com_modules.module' || $context !== 'com_advancedmodules.module')) {
             return;
         }
 
@@ -400,7 +413,9 @@ class PlgSystemModuleversion extends CMSPlugin
     public function onExtensionBeforeUninstall($eid) //phpcs:ignore
     {
         // Check if client is administrator or view is module.
-        if (!$this->app->isClient('administrator')) {
+        $this->isAdmin = Factory::getApplication()->isClient('administrator');           
+        //if (!$this->app->isClient('administrator')) {
+        if (!$this->isAdmin) {
             return;
         }
 
@@ -424,7 +439,7 @@ class PlgSystemModuleversion extends CMSPlugin
             self::$results = [];
 
             return;
-        }
+        }                
 
         // Get the entries of the current module from the DB as result.
         self::$results = Helper::getVersions($version);
