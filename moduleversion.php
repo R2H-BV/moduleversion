@@ -185,7 +185,7 @@ class PlgSystemModuleversion extends CMSPlugin
 
             $modParams = '';
 
-            if (!strlen($result->params) && $showParams) {
+            if (strlen($result->params) && $showParams) {
                 $modParams = '<fieldset class="options-form p-3"><legend class="mb-0">' .
                     Text::_('PLG_SYSTEM_MODULEVERSION_PARAMS_TITLE') . '</legend>';
                 $modParams .= '<div class="overflow-hidden">' .
