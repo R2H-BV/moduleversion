@@ -1,5 +1,4 @@
 <?php
-declare(strict_types = 1);
 
 /**
  * @package     Joomla.Plugin
@@ -9,7 +8,7 @@ declare(strict_types = 1);
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Plugin\System\Moduleversion;
+namespace Joomla\Plugin\System\Moduleversion\Helper;
 
 use DateTime;
 use Joomla\CMS\Factory;
@@ -24,21 +23,22 @@ use stdClass;
 /**
  * Helper for plugin moduleversion.
  *
- * @since  __DEPLOY_VERSION__
+ * @since  1.0.0
  */
-abstract class Helper
+abstract class ModuleversionHelper
 {
     /**
-     * Datbase helper to get the current module versions.
+     * Database helper to get the current module versions.
      *
-     * @param  integer $moduleId Module ID.
-     * @return array<\stdClass>
+     * @param   integer  $moduleId  Module ID.
+     *
+     * @return  array<\stdClass>
+     *
+     * @since   1.0.0
      */
     public static function getVersions(int $moduleId): array
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
@@ -71,7 +71,7 @@ abstract class Helper
         $query
             ->from($db->quoteName('#__modules_versions'))
             ->where($db->quoteName('mod_id') . ' LIKE ' . $db->quote($moduleId))
-            ->order($db->quoteName('id') . 'DESC');
+            ->order($db->quoteName('id') . ' DESC');
 
         $db->setQuery($query);
 
@@ -81,15 +81,17 @@ abstract class Helper
     }
 
     /**
-     * Datbase helper to store the current module versions.
+     * Database helper to store the current module versions.
      *
-     * @param  Module $item Current module item.
+     * @param   Module  $item  Current module item.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public static function storeVersion(Module $item): void
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
@@ -131,15 +133,17 @@ abstract class Helper
     }
 
     /**
-     * Datbase helper to reset the star icon.
+     * Database helper to reset the star icon.
      *
-     * @param  integer $modId The module ID.
+     * @param   integer  $modId  The module ID.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public static function resetCurrent(int $modId): void
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
@@ -164,16 +168,18 @@ abstract class Helper
     }
 
     /**
-     * Datbase helper to set the star icon.
+     * Database helper to set the star icon.
      *
-     * @param  integer $id    Current module item.
-     * @param  integer $modId The module ID.
+     * @param   integer  $id     Current module item.
+     * @param   integer  $modId  The module ID.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public static function setCurrent(int $id, int $modId): void
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
@@ -200,21 +206,25 @@ abstract class Helper
     /**
      * Database helper to update the module with the selected module versions.
      *
-     * @param  \stdClass $item Current module item.
+     * @param   \stdClass  $item  Current module item.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public static function updateModuleToVersion(\stdClass $item): void
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
 
         $fields = array_map(
             function (string $key, $value) use ($db) {
-                if (($key === 'publish_up' || $key === 'publish_down')
-                    && (!$value || $value === '0000-00-00 00:00:00' || $value === "''")) {
+                if (
+                    ($key === 'publish_up' || $key === 'publish_down')
+                    && (!$value || $value === '0000-00-00 00:00:00' || $value === "''")
+                ) {
                     $value = null;
                 }
 
@@ -224,9 +234,9 @@ abstract class Helper
             array_values($temp)
         );
 
-        $conditions = array(
-            $db->quoteName('id') . ' = ' . $item->mod_id //phpcs:ignore
-        );
+        $conditions = [
+            $db->quoteName('id') . ' = ' . $item->mod_id
+        ];
 
         $query->update($db->quoteName('#__modules'))->set($fields)->where($conditions);
 
@@ -236,22 +246,24 @@ abstract class Helper
     }
 
     /**
-     * Datbase helper to delete versions of trashed modules.
+     * Database helper to delete versions of trashed modules.
      *
-     * @param  integer $item Current module item.
+     * @param   integer  $item  Current module item.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public static function deleteVersion(int $item): void
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
 
-        $conditions = array(
+        $conditions = [
             $db->quoteName('mod_id') . ' = ' . $item,
-        );
+        ];
 
         $query
             ->delete($db->quoteName('#__modules_versions'))
@@ -263,22 +275,24 @@ abstract class Helper
     }
 
     /**
-     * Datbase helper to delete versions of uninstalled modules.
+     * Database helper to delete versions of uninstalled modules.
      *
-     * @param   string $eid Current extension ID.
+     * @param   string  $eid  Current extension ID.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public static function uninstallVersion(string $eid): void
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
 
-        $query->select($db->quoteName(array('element', 'client_id')));
+        $query->select($db->quoteName(['element', 'client_id']));
         $query->from($db->quoteName('#__extensions'));
-        $query->where($db->quoteName('extension_id') . " = " . $db->quote($eid));
+        $query->where($db->quoteName('extension_id') . ' = ' . $db->quote($eid));
 
         $db->setQuery($query);
 
@@ -289,10 +303,10 @@ abstract class Helper
 
         $query = $db->getQuery(true);
 
-        $conditions = array(
+        $conditions = [
             $db->quoteName('module') . ' = ' . $db->quote($moduleElement[0]->element),
             $db->quoteName('client_id') . ' = ' . $db->quote($moduleElement[0]->client_id),
-        );
+        ];
 
         $query
             ->delete($db->quoteName('#__modules_versions'))
@@ -304,10 +318,14 @@ abstract class Helper
     }
 
     /**
-     * Datbase helper to compare the current module settings and the latest version in DB.
+     * Database helper to compare the current module settings and the latest version in DB.
      *
-     * @param   Module    $moduleSettings The current module item.
-     * @param   \stdClass $loadedVersion  The version loaded from the database.
+     * @param   Module     $moduleSettings  The current module item.
+     * @param   \stdClass  $loadedVersion   The version loaded from the database.
+     *
+     * @return  bool
+     *
+     * @since   1.0.0
      */
     public static function compareVersion(Module $moduleSettings, stdClass $loadedVersion): bool
     {
@@ -320,9 +338,12 @@ abstract class Helper
     /**
      * Filters the module content for the values.
      *
-     * @param  array<string, string> $content  The module content.
-     * @param  array<string>         $excluded The excluded key from the filter.
-     * @return array<string, mixed>
+     * @param   array<string, string>  $content   The module content.
+     * @param   array<string>          $excluded  The excluded key from the filter.
+     *
+     * @return  array<string, mixed>
+     *
+     * @since   1.0.0
      */
     protected static function filterContent(array $content, array $excluded = []): array
     {
@@ -358,9 +379,13 @@ abstract class Helper
     /**
      * Create the html params table from the object.
      *
-     * @param mixed $values Object with module parameters.
+     * @param   mixed  $values  Object with module parameters.
+     *
+     * @return  string
+     *
+     * @since   1.0.0
      */
-    public static function formatOutput($values): string //phpcs:ignore
+    public static function formatOutput($values): string
     {
         if (is_object($values)) {
             $values = get_object_vars($values);
@@ -383,19 +408,21 @@ abstract class Helper
 
         $output .= '</dl>';
 
-        return($output);
+        return $output;
     }
 
     /**
-     * Datbase helper to remove obsolete versions.
+     * Database helper to remove obsolete versions.
      *
-     * @param   integer $id Current module item.
+     * @param   integer  $id  Current module item.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public static function removeObsolete(int $id): void
     {
-        /**
-         * @var \Joomla\Database\DatabaseDriver $db
-         */
+        /** @var \Joomla\Database\DatabaseDriver $db */
         $db = Factory::getContainer()->get('DatabaseDriver');
 
         $query = $db->getQuery(true);
@@ -403,7 +430,7 @@ abstract class Helper
         $query
             ->delete($db->quoteName('#__modules_versions'))
             ->where($db->quoteName('mod_id') . ' LIKE ' . $db->quote($id))
-            ->order($db->quoteName('id') . 'DESC')
+            ->order($db->quoteName('id') . ' DESC')
             ->setLimit(1);
 
         $db->setQuery($query);

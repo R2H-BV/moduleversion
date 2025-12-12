@@ -1,5 +1,4 @@
 <?php
-declare(strict_types = 1);
 
 /**
  * @package     Joomla.Plugin
@@ -9,30 +8,41 @@ declare(strict_types = 1);
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-use Joomla\CMS\Plugin\CMSPlugin;
+namespace Joomla\Plugin\System\Moduleversion\Extension;
+
+use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Event\Model\AfterDeleteEvent;
+use Joomla\CMS\Event\Model\AfterSaveEvent;
+use Joomla\CMS\Event\Model\BeforeDeleteEvent;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Joomla\Plugin\System\Moduleversion\Helper;
+use Joomla\Database\DatabaseAwareTrait;
+use Joomla\Event\DispatcherInterface;
+use Joomla\Event\SubscriberInterface;
+use Joomla\Plugin\System\Moduleversion\Helper\ModuleversionHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- *  Class for module version
+ * Module Version Plugin
  *
- * @package     Joomla.Plugin
- * @since     __DEPLOY_VERSION__
+ * @since  1.0.0
  */
-class PlgSystemModuleversion extends CMSPlugin
+final class Moduleversion extends CMSPlugin implements SubscriberInterface
 {
+    use DatabaseAwareTrait;
+
     /**
      * Application object.
      *
      * @var    CMSApplicationInterface
+     * @since  1.0.0
      */
     protected $app;
 
@@ -40,6 +50,7 @@ class PlgSystemModuleversion extends CMSPlugin
      * Affects constructor behavior. If true, language files will be loaded automatically.
      *
      * @var    boolean
+     * @since  1.0.0
      */
     protected $autoloadLanguage = true;
 
@@ -47,29 +58,67 @@ class PlgSystemModuleversion extends CMSPlugin
      * Get the current module versions as result
      *
      * @var    object
+     * @since  1.0.0
      */
     protected static $results;
 
     /**
-     * Get the current module versions as result
+     * Get the current module versions count
      *
      * @var    integer
+     * @since  1.0.0
      */
     protected static $numberOfVersions = 0;
 
     /**
+     * Constructor
+     *
+     * @param   DispatcherInterface  $dispatcher  The dispatcher
+     * @param   array                $config      An optional associative array of configuration settings
+     *
+     * @since   1.0.0
+     */
+    public function __construct(DispatcherInterface $dispatcher, array $config = [])
+    {
+        parent::__construct($dispatcher, $config);
+
+        $this->app = Factory::getApplication();
+    }
+
+    /**
+     * Returns an array of events this subscriber will listen to.
+     *
+     * @return  array
+     *
+     * @since   1.0.0
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'onBeforeRender'         => 'onBeforeRender',
+            'onAfterRender'          => 'onAfterRender',
+            'onBeforeCompileHead'    => 'onBeforeCompileHead',
+            'onExtensionAfterSave'   => 'onExtensionAfterSave',
+            'onExtensionAfterDelete' => 'onExtensionAfterDelete',
+            'onExtensionBeforeUninstall' => 'onExtensionBeforeUninstall',
+        ];
+    }
+
+    /**
      * Listener for the `onBeforeRender` event.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public function onBeforeRender(): void
     {
-        $this->isAdmin = Factory::getApplication()->isClient('administrator');
         // Check if client is administrator or view is module.
-        //if (!$this->app->isClient('administrator') || $this->app->input->get->getString('view') !== 'module') {
-        if (!$this->isAdmin || $this->app->input->get->getString('view') !== 'module') {
+        if (!$this->app->isClient('administrator') || $this->app->input->get->getString('view') !== 'module') {
             return;
         }
 
-        self::loadVersionsResults();
+        $this->loadVersionsResults();
 
         // Return if we have no entries.
         if (self::$numberOfVersions === 0) {
@@ -78,7 +127,7 @@ class PlgSystemModuleversion extends CMSPlugin
 
         // Check if parameter is set and selected version is loaded.
         $input = $this->app->input;
-        (bool) $restoredMessage = $input->get('modver', '', 'bool');
+        $restoredMessage = (bool) $input->get('modver', '', 'bool');
 
         // Output message if version is loaded.
         if ($restoredMessage) {
@@ -100,17 +149,18 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Listener for the `onAfterRender` event.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
-    public function onAfterRender(): void //phpcs:ignore
+    public function onAfterRender(): void
     {
-        $this->isAdmin = Factory::getApplication()->isClient('administrator');
-                    
         // Check if client is administrator or we have results.
-        //if (!$this->app->isClient('administrator') || !self::$results) {
-          if (!$this->isAdmin || !self::$results) {
+        if (!$this->app->isClient('administrator') || !self::$results) {
             return;
         }
-        
+
         // Get the body text from the Application.
         $content = $this->app->getBody();
 
@@ -142,8 +192,6 @@ class PlgSystemModuleversion extends CMSPlugin
         <div class="accordion" id="accordionModInfo">
         HTML;
 
-        
-        
         foreach (self::$results as $index => $result) {
             $modulePosition = $result->position ? $result->position : Text::_('JNONE');
             $modulePublished = $result->published ? Text::_('JPUBLISHED') : Text::_('JUNPUBLISHED');
@@ -196,7 +244,7 @@ class PlgSystemModuleversion extends CMSPlugin
                 $modParams = '<fieldset class="options-form p-3"><legend class="mb-0">' .
                     Text::_('PLG_SYSTEM_MODULEVERSION_PARAMS_TITLE') . '</legend>';
                 $modParams .= '<div class="overflow-hidden">' .
-                    Helper::formatOutput(json_decode($result->params, true)) . '</div></fieldset>';
+                    ModuleversionHelper::formatOutput(json_decode($result->params, true)) . '</div></fieldset>';
             }
 
             $moduleTitle = $result->title;
@@ -264,7 +312,7 @@ class PlgSystemModuleversion extends CMSPlugin
         $this->app->setBody($buffer);
 
         // Get the current page URL.
-        $currentUri = \Joomla\CMS\Uri\Uri::getInstance();
+        $currentUri = Uri::getInstance();
         $currentUri->toString();
 
         // Load the module version.
@@ -273,13 +321,10 @@ class PlgSystemModuleversion extends CMSPlugin
             $item = self::$results[$index];
 
             // Update the current module with the selected version.
-            Helper::updateModuleToVersion($item);
-
-            // Reset the current check mark.
-            // Helper::resetCurrent();
+            ModuleversionHelper::updateModuleToVersion($item);
 
             // Set the check mark to new item.
-            Helper::setCurrent($item->id, $item->mod_id); //phpcs:ignore
+            ModuleversionHelper::setCurrent($item->id, $item->mod_id);
 
             // Create waiting spinner overlay.
             $waitingspinner = str_ireplace(
@@ -297,17 +342,19 @@ class PlgSystemModuleversion extends CMSPlugin
 
     /**
      * Triggered before compiling the head.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     public function onBeforeCompileHead(): void
     {
-        $this->isAdmin = Factory::getApplication()->isClient('administrator');
         // Check if client is administrator and view is module.
-        //if (!$this->app->isClient('administrator') && $this->app->input->get->getString('view') !== 'module') {
-        if (!$this->isadmin && $this->app->input->get->getString('view') !== 'module') {
+        if (!$this->app->isClient('administrator') && $this->app->input->get->getString('view') !== 'module') {
             return;
         }
 
-        /** @var Joomla\CMS\WebAsset\WebAssetManager $wa*/
+        /** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
         $wa = $this->app->getDocument()->getWebAssetManager();
 
         $wa->getRegistry()->addRegistryFile('media/plg_system_moduleversion/joomla.asset.json');
@@ -319,47 +366,48 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an extension is saved.
      *
-     * @param  object  $context The context which is active.
-     * @param  object  $item    An optional associative array of module settings.
-     * @param  boolean $isNew   Check if module is new.
+     * @param   AfterSaveEvent  $event  The event
      *
-     * @since   1.0
      * @return  void
+     *
+     * @since   1.0.0
      */
-    public function onExtensionAfterSave($context, $item, $isNew) //phpcs:ignore
+    public function onExtensionAfterSave(AfterSaveEvent $event): void
     {
-        $this->isAdmin = Factory::getApplication()->isClient('administrator');                      
+        $context = $event->getContext();
+        $item = $event->getItem();
+        $isNew = $event->getIsNew();
+
         // Check if client is Administrator or context is module
-        //if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {        
-        if (!$this->isAdmin || ( $context !== 'com_modules.module' && $context !== 'com_advancedmodules.module')) {            
+        if (!$this->app->isClient('administrator') || ($context !== 'com_modules.module' && $context !== 'com_advancedmodules.module')) {
             return;
         }
 
-        self::loadVersionsResults();
+        $this->loadVersionsResults();
 
         // Store module version when isNew.
         if ($isNew === true || self::$numberOfVersions === 0) {
             // Reset the current check mark.
-            Helper::resetCurrent($item->id); // phpcs:ignore
+            ModuleversionHelper::resetCurrent($item->id);
 
-            Helper::storeVersion($item);
+            ModuleversionHelper::storeVersion($item);
 
             return;
         }
 
         // Compare module setting with latest version.
-        $moduleHasChanged = Helper::compareVersion($item, self::$results[0]);
+        $moduleHasChanged = ModuleversionHelper::compareVersion($item, self::$results[0]);
 
-        // If noting has changed return
+        // If nothing has changed return
         if (!$moduleHasChanged) {
             return;
         }
 
         // Reset the current check mark.
-        Helper::resetCurrent($item->id); // phpcs:ignore
+        ModuleversionHelper::resetCurrent($item->id);
 
         // Store module version in DB.
-        Helper::storeVersion($item);
+        ModuleversionHelper::storeVersion($item);
 
         // Get the number of versions set in plugin options.
         $versionsToKeep = (int) $this->params->get('versionstokeep', 10);
@@ -375,7 +423,7 @@ class PlgSystemModuleversion extends CMSPlugin
 
             if ($toMuchVersions >= 0) {
                 for ($i = 0; $i <= $toMuchVersions; $i++) {
-                    Helper::removeObsolete($item->id);
+                    ModuleversionHelper::removeObsolete($item->id);
                 }
             }
         }
@@ -384,47 +432,54 @@ class PlgSystemModuleversion extends CMSPlugin
     /**
      * Method is called when an Extension is being deleted.
      *
-     * @param  string $context The module.
-     * @param  Table  $table   DataBase Table object.
+     * @param   AfterDeleteEvent  $event  The event
      *
+     * @return  void
+     *
+     * @since   1.0.0
      */
-    public function onExtensionAfterDelete($context, $table): void //phpcs:ignore
+    public function onExtensionAfterDelete(AfterDeleteEvent $event): void
     {
+        $context = $event->getContext();
+        $table = $event->getItem();
+
         // Check if client is administrator or view is module.
-        $this->isAdmin = Factory::getApplication()->isClient('administrator');           
-        //if (!$this->app->isClient('administrator') || $context !== 'com_modules.module') {
-        if (!$this->isAdmin || ( $context !== 'com_modules.module' || $context !== 'com_advancedmodules.module')) {
+        if (!$this->app->isClient('administrator') || ($context !== 'com_modules.module' && $context !== 'com_advancedmodules.module')) {
             return;
         }
 
         // Delete the versions of the trashed module.
-        Helper::deleteVersion($table->id);
+        ModuleversionHelper::deleteVersion($table->id);
     }
 
     /**
      * Method is called when an Extension is being uninstalled.
      *
-     * @param  integer $eid Extension id.
+     * @param   BeforeDeleteEvent  $event  The event
      *
      * @return  void
      *
-     * @since   4.0.0
+     * @since   1.0.0
      */
-    public function onExtensionBeforeUninstall($eid) //phpcs:ignore
+    public function onExtensionBeforeUninstall(BeforeDeleteEvent $event): void
     {
+        $eid = $event->getItem()->extension_id;
+
         // Check if client is administrator or view is module.
-        $this->isAdmin = Factory::getApplication()->isClient('administrator');           
-        //if (!$this->app->isClient('administrator')) {
-        if (!$this->isAdmin) {
+        if (!$this->app->isClient('administrator')) {
             return;
         }
 
         // Delete the versions of the uninstalled module.
-        Helper::uninstallVersion((string) $eid);
+        ModuleversionHelper::uninstallVersion((string) $eid);
     }
 
     /**
      * Load the versions of the selected module.
+     *
+     * @return  void
+     *
+     * @since   1.0.0
      */
     protected function loadVersionsResults(): void
     {
@@ -439,10 +494,10 @@ class PlgSystemModuleversion extends CMSPlugin
             self::$results = [];
 
             return;
-        }                
+        }
 
         // Get the entries of the current module from the DB as result.
-        self::$results = Helper::getVersions($version);
+        self::$results = ModuleversionHelper::getVersions($version);
 
         // Count the versions.
         self::$numberOfVersions = count(self::$results);
