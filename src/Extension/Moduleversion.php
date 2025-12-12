@@ -11,9 +11,9 @@
 namespace Joomla\Plugin\System\Moduleversion\Extension;
 
 use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Event\Extension\BeforeUninstallEvent;
 use Joomla\CMS\Event\Model\AfterDeleteEvent;
 use Joomla\CMS\Event\Model\AfterSaveEvent;
-use Joomla\CMS\Event\Model\BeforeDeleteEvent;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
@@ -455,15 +455,15 @@ final class Moduleversion extends CMSPlugin implements SubscriberInterface
     /**
      * Method is called when an Extension is being uninstalled.
      *
-     * @param   BeforeDeleteEvent  $event  The event
+     * @param   BeforeUninstallEvent  $event  The event
      *
      * @return  void
      *
      * @since   1.0.0
      */
-    public function onExtensionBeforeUninstall(BeforeDeleteEvent $event): void
+    public function onExtensionBeforeUninstall(BeforeUninstallEvent $event): void
     {
-        $eid = $event->getItem()->extension_id;
+        $eid = $event->getEid();
 
         // Check if client is administrator or view is module.
         if (!$this->app->isClient('administrator')) {
