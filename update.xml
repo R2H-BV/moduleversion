@@ -3,6 +3,26 @@
 	<update>
 		<name>Module version system plugin</name>
 		<description>Joomla! CMS Module version system plugin</description>
+		<version>3.0.0</version>
+		<infourl title="Module version system plugin">https://github.com/R2H-BV/moduleversion</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip">https://github.com/R2H-BV/moduleversion/releases/download/v3.0.0/plg_system_moduleversion_3.0.0.zip</downloadurl>
+		</downloads>
+		<targetplatform name="joomla" version="4.[012345]|5.[012345]"/>
+		<php_minimum>8.1</php_minimum>
+		<element>moduleversion</element>
+		<folder>system</folder>
+		<type>plugin</type>
+		<client>site</client>
+		<tags>
+			<tag>stable</tag>
+		</tags>
+		<maintainer>R2H BV</maintainer>
+        <maintainerurl>https://r2h.nl/</maintainerurl>
+	</update>
+	<update>
+		<name>Module version system plugin</name>
+		<description>Joomla! CMS Module version system plugin</description>
 		<version>2.0.5</version>
 		<infourl title="Module version system plugin">https://github.com/R2H-BV/moduleversion</infourl>
 		<downloads>
