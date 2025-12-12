@@ -11,7 +11,7 @@
 	<description>PLG_SYSTEM_MODULEVERSION_XML_DESCRIPTION</description>
 	<namespace path="src">Joomla\Plugin\System\Moduleversion</namespace>
 	<files>
-		<folder>services</folder>
+		<folder plugin="moduleversion">services</folder>
 		<folder>src</folder>
 	</files>
 	<scriptfile>script.php</scriptfile>

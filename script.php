@@ -33,7 +33,7 @@ class plgSystemModuleversionInstallerScript // phpcs:ignore
      *
      * @var string
      */
-    protected $minimumPhp = '7.4.0';
+    protected $minimumPhp = '8.1.0';
 
     /**
      * Method to install the extension
