@@ -8,7 +8,7 @@
 		<downloads>
 			<downloadurl type="full" format="zip">https://github.com/R2H-BV/moduleversion/releases/download/v3.0.0/plg_system_moduleversion_3.0.0.zip</downloadurl>
 		</downloads>
-		<targetplatform name="joomla" version="4.[012345]|5.[012345]"/>
+		<targetplatform name="joomla" version="4.[012345]|5.[012345]|6.[012345]"/>
 		<php_minimum>8.1</php_minimum>
 		<element>moduleversion</element>
 		<folder>system</folder>
