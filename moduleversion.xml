@@ -7,7 +7,7 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>post@r2h.nl</authorEmail>
 	<authorUrl>www.r2h.nl</authorUrl>
-	<version>3.0.0</version>
+	<version>3.0.2</version>
 	<description>PLG_SYSTEM_MODULEVERSION_XML_DESCRIPTION</description>
 	<namespace path="src">Joomla\Plugin\System\Moduleversion</namespace>
 	<files>
