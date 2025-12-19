@@ -3,7 +3,7 @@
 	<update>
 		<name>Module version system plugin</name>
 		<description>Joomla! CMS Module version system plugin</description>
-		<version>3.0.0</version>
+		<version>3.0.1</version>
 		<infourl title="Module version system plugin">https://github.com/R2H-BV/moduleversion</infourl>
 		<downloads>
 			<downloadurl type="full" format="zip">https://github.com/R2H-BV/moduleversion/releases/download/v3.0.0/plg_system_moduleversion_3.0.0.zip</downloadurl>

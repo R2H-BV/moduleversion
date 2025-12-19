@@ -22,6 +22,7 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Event\DispatcherInterface;
+use Joomla\Event\Event;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Plugin\System\Moduleversion\Helper\ModuleversionHelper;
 
@@ -455,15 +456,15 @@ final class Moduleversion extends CMSPlugin implements SubscriberInterface
     /**
      * Method is called when an Extension is being uninstalled.
      *
-     * @param   BeforeUninstallEvent  $event  The event
+     * @param   Event  $event  The event
      *
      * @return  void
      *
      * @since   1.0.0
      */
-    public function onExtensionBeforeUninstall(BeforeUninstallEvent $event): void
+    public function onExtensionBeforeUninstall(Event $event): void
     {
-        $eid = $event->getEid();
+        $eid = $event->getArgument('eid');
 
         // Check if client is administrator or view is module.
         if (!$this->app->isClient('administrator')) {
